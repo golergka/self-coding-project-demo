@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101114" />
+    <title>Self-coding demo · Automation workspace</title>
+    <link rel="stylesheet" href="/static/styles.css?v=3" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="Self-coding demo home"
+          ><span class="brand-mark">s<span>•</span></span> self-coding
+          <span class="brand-suffix">WORKSPACE</span></a
+        >
+        <div class="project-picker">
+          <label for="projects">PROJECT</label
+          ><select id="projects">
+            <option value="">Select a project</option>
+          </select>
+          <details class="new-project">
+            <summary>＋ New project</summary>
+            <form id="create-project">
+              <label class="sr-only" for="project-name">Project name</label
+              ><input
+                id="project-name"
+                name="name"
+                placeholder="My automation"
+                required
+              /><button>Create project</button>
+            </form>
+          </details>
+          <p id="project-status" role="status" class="small-status"></p>
+        </div>
+        <div class="nav-label">WORKSPACE</div>
+        <nav aria-label="Workspace navigation">
+          <button class="nav-item active" data-view="dashboard">
+            <span class="nav-icon">▦</span>Dashboard
+          </button>
+          <button class="nav-item" data-view="runs">
+            <span class="nav-icon">▷</span>Runs<span
+              class="nav-count"
+              id="nav-run-count"
+              >0</span
+            >
+          </button>
+          <button class="nav-item" data-view="versions">
+            <span class="nav-icon">⑂</span>Versions
+          </button>
+          <button class="nav-item" data-view="agent">
+            <span class="nav-icon">✳</span>Coding agent
+          </button>
+          <button class="nav-item" data-view="testing">
+            <span class="nav-icon">⊞</span>Test environment
+          </button>
+          <div class="nav-label preview-nav">EXPLORE <span>PREVIEW</span></div>
+          <button class="nav-item" data-view="analytics">
+            <span class="nav-icon">▥</span>Analytics<span
+              class="preview-dot"
+            ></span>
+          </button>
+          <button class="nav-item" data-view="integrations">
+            <span class="nav-icon">⌘</span>Integrations<span
+              class="preview-dot"
+            ></span>
+          </button>
+          <button class="nav-item" data-view="settings">
+            <span class="nav-icon">⚙</span>Settings<span
+              class="preview-dot"
+            ></span>
+          </button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="workspace-health">
+            <span class="status-dot"></span
+            ><span id="connection-label">Local workspace</span>
+          </div>
+          <div class="profile">
+            <span class="avatar">B</span>
+            <div>
+              <strong>Developer workspace</strong
+              ><small>Local environment</small>
+            </div>
+            <span class="profile-more">⌄</span>
+          </div>
+        </div>
+      </aside>
+      <div class="main-shell">
+        <header class="topbar">
+          <div class="breadcrumb">
+            Workspace <span>/</span>
+            <span id="breadcrumb-current">Dashboard</span>
+          </div>
+          <div class="topbar-right">
+            <span class="environment-pill"
+              ><span class="status-dot"></span> Development</span
+            ><span class="topbar-divider"></span
+            ><span class="top-avatar">B</span>
+          </div>
+        </header>
+        <main>
+          <div class="page-heading">
+            <div>
+              <h1 id="page-title">Dashboard</h1>
+              <p id="page-description">
+                Run activity and the current project version.
+              </p>
+            </div>
+            <button class="button secondary" data-view="testing">
+              <span>＋</span> New test run
+            </button>
+          </div>
+          <div id="empty-workspace" class="empty-state">
+            <div class="empty-icon">⑂</div>
+            <h2>Your next automation starts here</h2>
+            <p>
+              Create a project in the sidebar, or select an existing one to open
+              its workspace.
+            </p>
+            <span class="subtle"
+              >Build with the coding agent. Test with confidence. Follow every
+              run.</span
+            >
+          </div>
+          <div id="workspace" hidden>
+            <div data-panel="dashboard">
+              <div class="overview-topline">
+                <span><span class="status-dot"></span> Project overview</span
+                ><span class="subtle"
+                  >Live workspace data <span class="live-pulse"></span
+                ></span>
+              </div>
+              <div class="metrics">
+                <article class="metric">
+                  <div class="metric-label">Total runs <span>▷</span></div>
+                  <strong id="metric-runs">0</strong
+                  ><small>Across test and live events</small>
+                </article>
+                <article class="metric">
+                  <div class="metric-label">Success rate <span>↗</span></div>
+                  <strong id="metric-success">—</strong
+                  ><small
+                    ><span class="tiny-dot green"></span>Of completed, failed,
+                    and uncertain runs</small
+                  >
+                </article>
+                <article class="metric">
+                  <div class="metric-label">Needs attention <span>⊗</span></div>
+                  <strong id="metric-failed">0</strong
+                  ><small>Failed or uncertain runs</small>
+                </article>
+                <article class="metric">
+                  <div class="metric-label">Current version <span>⑂</span></div>
+                  <strong id="metric-version" class="commit-metric">—</strong
+                  ><small
+                    ><span class="branch-pill">⑂ main</span> Current branch
+                    tip</small
+                  >
+                </article>
+              </div>
+              <div class="dashboard-grid">
+                <section class="panel activity-panel">
+                  <div class="panel-heading">
+                    <div>
+                      <h2>Recent activity</h2>
+                      <p>The latest executions in this project.</p>
+                    </div>
+                    <button class="text-button" data-view="runs">
+                      View all runs <span>↗</span>
+                    </button>
+                  </div>
+                  <div class="table-heading">
+                    <span>RUN / WORKFLOW</span><span>STATUS</span
+                    ><span>ENVIRONMENT</span>
+                  </div>
+                  <div id="recent-runs" class="recent-runs">
+                    <div class="inline-empty">
+                      No runs yet. Send an event to see your automation in
+                      action.
+                    </div>
+                  </div>
+                </section>
+                <section class="panel project-panel">
+                  <div class="panel-heading">
+                    <h2>Project details</h2>
+                    <span class="subtle">⑂</span>
+                  </div>
+                  <div class="project-detail">
+                    <span>Project</span
+                    ><strong id="dashboard-project-name">—</strong>
+                  </div>
+                  <div class="project-detail">
+                    <span>Environment</span
+                    ><strong
+                      ><span class="status-dot"></span> Development</strong
+                    >
+                  </div>
+                  <div class="project-detail">
+                    <span>Main commit</span><code id="dashboard-commit">—</code>
+                  </div>
+                  <div class="project-detail">
+                    <span>Runtime</span><strong>Python workflows</strong>
+                  </div>
+                  <button
+                    class="button secondary full-width"
+                    data-view="versions"
+                  >
+                    Explore versions <span>→</span>
+                  </button>
+                </section>
+              </div>
+              <div class="dashboard-footer">
+                <span
+                  ><span class="status-dot"></span> Connected to your local
+                  automation service</span
+                >
+              </div>
+            </div>
+            <div data-panel="runs" hidden>
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <h2>Execution history</h2>
+                    <p>Inspect workflow results, logs, and errors.</p>
+                  </div>
+                  <span class="badge">LIVE DATA</span>
+                </div>
+                <div class="run-filters">
+                  <label
+                    >Status
+                    <select id="run-status-filter">
+                      <option value="all">All statuses</option>
+                      <option value="queued">Queued</option>
+                      <option value="running">Running</option>
+                      <option value="waiting">Waiting</option>
+                      <option value="completed">Completed</option>
+                      <option value="failed">Failed</option>
+                      <option value="uncertain">Uncertain</option>
+                    </select></label
+                  ><label
+                    >Scope
+                    <select id="run-scope-filter">
+                      <option value="all">All scopes</option>
+                      <option value="test">Test</option>
+                      <option value="live">Live</option>
+                    </select></label
+                  >
+                </div>
+                <p id="runs-status" role="status" class="small-status"></p>
+                <div id="runs"></div>
+              </section>
+            </div>
+            <div data-panel="versions" hidden>
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <h2>Version control</h2>
+                    <p>Every automation change is a Git commit.</p>
+                  </div>
+                  <span class="branch-pill">⑂ main</span>
+                </div>
+                <div class="version-summary">
+                  <span class="subtle">MAIN TIP</span
+                  ><code id="main-commit">—</code>
+                </div>
+                <pre id="branches" hidden></pre>
+                <div class="version-browser">
+                  <div class="version-sidebar">
+                    <h3>History on main</h3>
+                    <div id="version-history"></div>
+                  </div>
+                  <div class="version-content">
+                    <div class="version-content-heading">
+                      <h3 id="selected-version">Select a version</h3>
+                      <span id="version-browser-status" role="status"></span>
+                    </div>
+                    <div
+                      class="version-tabs"
+                      role="group"
+                      aria-label="Version view"
+                    >
+                      <button
+                        type="button"
+                        class="secondary active"
+                        data-version-view="files"
+                      >
+                        Files
+                      </button>
+                      <button
+                        type="button"
+                        class="secondary"
+                        data-version-view="diff"
+                      >
+                        Changes
+                      </button>
+                    </div>
+                    <div id="version-files-view">
+                      <div class="version-file-layout">
+                        <div id="version-files"></div>
+                        <div>
+                          <div id="version-file-name" class="subtle">
+                            Select a file
+                          </div>
+                          <pre id="version-file-content"></pre>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="version-diff-view" hidden>
+                      <pre id="version-diff"></pre>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-grid">
+                  <div>
+                    <label for="main-target">Commit for main</label
+                    ><input id="main-target" placeholder="Full commit hash" />
+                  </div>
+                  <button id="update-main">Move main</button
+                  ><button id="example" class="secondary">
+                    Add example commit
+                  </button>
+                </div>
+                <p id="project-action" role="status"></p>
+              </section>
+            </div>
+            <div data-panel="agent" hidden>
+              <section class="panel chat-panel">
+                <div class="panel-heading">
+                  <div>
+                    <h2>Your coding partner</h2>
+                    <p>
+                      Describe an automation. The agent writes, tests, and
+                      commits the workflow.
+                    </p>
+                  </div>
+                  <span class="agent-badge">✳ Coding agent</span>
+                </div>
+                <div id="chat-history" class="scroll" aria-live="polite"></div>
+                <div class="agent-status-line" id="agent-activity">
+                  <span class="status-dot"></span>
+                  <p id="chat-status" role="status">Ready for a request.</p>
+                  <p id="chat-refresh" role="status" class="small-status"></p>
+                </div>
+                <form id="chat-form" class="chat-composer">
+                  <label class="sr-only" for="chat-message">Message</label
+                  ><textarea
+                    id="chat-message"
+                    name="message"
+                    placeholder="What would you like your automation to do?"
+                    required
+                  ></textarea>
+                  <div class="composer-bottom">
+                    <span>⌘ / Ctrl + Enter to send</span
+                    ><button>Send message <span>↑</span></button>
+                  </div>
+                </form>
+              </section>
+            </div>
+            <div data-panel="testing" hidden>
+              <div class="testing-grid">
+                <section class="panel">
+                  <div class="panel-heading">
+                    <div>
+                      <h2>Test session</h2>
+                      <p>Run a version with controlled service responses.</p>
+                    </div>
+                    <span class="badge">SANDBOX</span>
+                  </div>
+                  <form id="start-test">
+                    <label
+                      >Commit to test<input
+                        name="commit"
+                        placeholder="Commit hash"
+                        required /></label
+                    ><label
+                      >Response fixtures
+                      <span class="label-hint">Optional JSON object</span
+                      ><textarea
+                        name="fixtures"
+                        placeholder='{"social.reply":{"ok":true},"social.dm":{"ok":true}}'
+                      ></textarea></label
+                    ><button>Start test session <span>→</span></button>
+                  </form>
+                  <p id="test-status" role="status"></p>
+                  <p id="test-refresh" role="status" class="small-status"></p>
+                  <div id="session" hidden>
+                    <p id="session-info" class="session-info"></p>
+                    <h3>Mock requests</h3>
+                    <div id="timeline"></div>
+                  </div>
+                </section>
+                <section class="panel">
+                  <div class="panel-heading">
+                    <div>
+                      <h2>Send an event</h2>
+                      <p>Trigger your workflow with a sample interaction.</p>
+                    </div>
+                  </div>
+                  <form id="event-form">
+                    <div class="field-pair">
+                      <label
+                        >Environment<select name="mode">
+                          <option value="test">Test session</option>
+                          <option value="live">Live debug</option>
+                        </select></label
+                      ><label
+                        >Event type<select name="kind">
+                          <option value="comment">Instagram comment</option>
+                          <option value="dm">Instagram DM</option>
+                        </select></label
+                      >
+                    </div>
+                    <div class="field-pair">
+                      <label
+                        >Conversation ID<input
+                          name="conversation_id"
+                          value="demo-conversation"
+                          required /></label
+                      ><label
+                        >Sender ID<input
+                          name="sender_id"
+                          value="demo-user"
+                          required
+                      /></label>
+                    </div>
+                    <label
+                      >Message text<input name="text" value="pricing" required
+                    /></label>
+                    <div id="comment-fields" class="field-pair">
+                      <label
+                        >Comment ID<input
+                          name="comment_id"
+                          value="demo-comment" /></label
+                      ><label
+                        >Post ID<input name="post_id" value="demo-post"
+                      /></label>
+                    </div>
+                    <button>Send event <span>↗</span></button>
+                  </form>
+                  <p id="event-status" role="status"></p>
+                </section>
+              </div>
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <h2>Live debug adapter</h2>
+                    <p>
+                      Set a response fixture for social operations in the live
+                      debug environment.
+                    </p>
+                  </div>
+                </div>
+                <form id="social-form" class="adapter-form">
+                  <label
+                    >Operation<select name="operation">
+                      <option value="social.reply">social.reply</option>
+                      <option value="social.dm">social.dm</option>
+                    </select></label
+                  ><label
+                    >Response fixture<textarea name="response" required>
+{"ok":true}</textarea
+                    ></label
+                  ><button>Save fixture</button>
+                </form>
+                <p id="social-status" role="status"></p>
+                <p id="social-refresh" role="status" class="small-status"></p>
+                <details>
+                  <summary>Adapter state</summary>
+                  <pre id="social-output"></pre>
+                </details>
+              </section>
+            </div>
+            <div data-panel="analytics" hidden>
+              <section class="panel preview-panel">
+                <span class="preview-label">FEATURE PREVIEW</span>
+                <div class="preview-art">▥</div>
+                <h2>See the bigger picture.</h2>
+                <p>
+                  Explore the direction of workflow analytics: execution trends,
+                  service latency, and failure patterns.
+                </p>
+                <div
+                  class="preview-chart"
+                  aria-label="Illustrative analytics preview, not actual project data"
+                >
+                  <i style="--bar: 28%"></i><i style="--bar: 48%"></i
+                  ><i style="--bar: 38%"></i><i style="--bar: 67%"></i
+                  ><i style="--bar: 54%"></i><i style="--bar: 80%"></i
+                  ><i style="--bar: 68%"></i><i style="--bar: 92%"></i
+                  ><i style="--bar: 75%"></i><i style="--bar: 100%"></i
+                  ><i style="--bar: 88%"></i><i style="--bar: 95%"></i>
+                </div>
+                <small
+                  >Illustrative preview · Analytics is not connected to project
+                  data.</small
+                >
+              </section>
+            </div>
+            <div data-panel="integrations" hidden>
+              <section class="panel preview-panel">
+                <span class="preview-label">FEATURE PREVIEW</span>
+                <div class="preview-art">⌘</div>
+                <h2>Your tools, working together.</h2>
+                <p>
+                  A future home for service connections and credentials. Social
+                  operations are available now through the test environment.
+                </p>
+                <div class="integration-cards">
+                  <div>
+                    <span>◎</span><strong>Instagram</strong
+                    ><small>Social adapter available in testing</small>
+                  </div>
+                  <div>
+                    <span>↗</span><strong>Webhooks</strong
+                    ><small>Events available in live debug</small>
+                  </div>
+                  <div>
+                    <span>＋</span><strong>More services</strong
+                    ><small>Connection management preview</small>
+                  </div>
+                </div>
+                <button data-view="testing">Open test environment →</button
+                ><small
+                  >Preview only · Connection management is not yet
+                  available.</small
+                >
+              </section>
+            </div>
+            <div data-panel="settings" hidden>
+              <section class="panel preview-panel">
+                <span class="preview-label">FEATURE PREVIEW</span>
+                <div class="preview-art">⚙</div>
+                <h2>A workspace that fits your team.</h2>
+                <p>
+                  Project preferences, team access, and notification controls
+                  are planned for this space.
+                </p>
+                <div class="settings-preview">
+                  <span>Team & permissions</span
+                  ><span class="badge">PLANNED</span><span>Notifications</span
+                  ><span class="badge">PLANNED</span
+                  ><span>Environment variables</span
+                  ><span class="badge">PLANNED</span>
+                </div>
+                <small>Preview only · No settings can be changed here.</small>
+              </section>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script src="/static/app.js?v=3" defer></script>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+git fetch origin main
+test "$(git rev-parse origin/main)" = "$COLOPH_SYNC_COMMIT"
